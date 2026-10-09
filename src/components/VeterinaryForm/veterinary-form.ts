@@ -1,7 +1,7 @@
 /** Esquema de validación y armado del payload del formulario de veterinarias. */
 import { submitVeterinaryForm } from '../../lib/api';
 import { initMultiStepForm, type BuildContext } from '../../lib/multistep';
-import { list, opt, str, yesNo } from '../../lib/payload';
+import { coordinates, list, opt, str, yesNo } from '../../lib/payload';
 import {
   email,
   maxLength,
@@ -93,6 +93,7 @@ export function buildVeterinaryPayload({ values, metadata }: BuildContext): Vete
       canton: str(values, 'canton'),
       district: opt(values, 'district'),
       address: str(values, 'address'),
+      coordinates: coordinates(values),
     },
     services: {
       offered: services,

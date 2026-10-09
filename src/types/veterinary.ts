@@ -1,4 +1,4 @@
-import type { FormMetadata } from './common';
+import type { Coordinates, FormMetadata } from './common';
 
 /** Respuesta a una pregunta Sí/No; `null` si no la contestó. */
 export type YesNo = boolean | null;
@@ -25,6 +25,8 @@ export interface VeterinaryLocation {
   canton: string;
   district?: string;
   address: string;
+  /** Solo si la persona usó "Usar mi ubicación actual" estando en la clínica. */
+  coordinates?: Coordinates;
 }
 
 export interface VeterinaryServices {

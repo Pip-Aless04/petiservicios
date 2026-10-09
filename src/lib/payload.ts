@@ -1,7 +1,7 @@
 /** Utilidades para leer los valores del formulario y armar el payload JSON. */
 import { FORM_SOURCE, FORM_VERSION } from './constants';
 import { parseNumber, text, type Values } from './validation';
-import type { FormMetadata, FormType } from '../types/common';
+import type { Coordinates, FormMetadata, FormType } from '../types/common';
 import type { UploadedFile } from '../types/quote';
 import type { YesNo } from '../types/veterinary';
 
@@ -17,8 +17,25 @@ export const opt = (values: Values, name: string): string | undefined => {
 /** Lista de valores seleccionados (casillas múltiples). */
 export const list = (values: Values, name: string): string[] => {
   const value = values[name];
-  return Array.isArray(value) ? value : [];
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
 };
+
+/**
+ * Coordenadas guardadas por el botón "Usar mi ubicación actual" (campos ocultos geoLat/geoLng/geoAccuracy).
+ * `undefined` si la persona no compartió su ubicación.
+ */
+export function coordinates(values: Values): Coordinates | undefined {
+  // No usa `num`: la longitud de Costa Rica es negativa y esos campos los escribimos nosotros con punto decimal.
+  const read = (name: string): number | undefined => {
+    const raw = str(values, name);
+    const n = Number(raw);
+    return raw === '' || !Number.isFinite(n) ? undefined : n;
+  };
+  const latitude = read('geoLat');
+  const longitude = read('geoLng');
+  if (latitude === undefined || longitude === undefined) return undefined;
+  return { latitude, longitude, accuracyMeters: read('geoAccuracy') };
+}
 
 /** Número o `undefined` si está vacío o no es válido (acepta "150.000", "4,5", etc.). */
 export const num = (values: Values, name: string): number | undefined => {

@@ -3,6 +3,7 @@ import Field from '../form/Field.astro';
 import Choice from '../form/Choice.astro';
 import Consent from '../form/Consent.astro';
 import FormShell from '../form/FormShell.astro';
+import LocationPicker from '../form/LocationPicker.astro';
 import Step from '../form/Step.astro';
 import Icon from '../Icon.astro';
 import {
@@ -53,19 +54,32 @@ const titles = [
     <Field prefix={p} name="email" label="Correo electrónico" type="email" inputmode="email" autocomplete="email" required maxlength={120} />
   </Step>
 
-  <Step prefix={p} index={1} title={titles[1]!} intro="Los enlaces son opcionales; ayudan a conocer mejor la clínica.">
+  <Step prefix={p} index={1} title={titles[1]!} intro="La ubicación nos permite conectar la clínica con propietarios que estén cerca. Los enlaces son opcionales.">
     <Field prefix={p} name="province" label="Provincia" kind="select" options={PROVINCES} required autocomplete="address-level1" />
     <div class="field-row cols-2">
       <Field prefix={p} name="canton" label="Cantón" required maxlength={60} />
       <Field prefix={p} name="district" label="Distrito" maxlength={60} />
     </div>
     <Field prefix={p} name="address" label="Dirección" required autocomplete="street-address" maxlength={200} />
+    <Field
+      prefix={p}
+      name="googleMapsUrl"
+      label="Enlace de Google Maps"
+      inputmode="url"
+      placeholder="https://maps.app.goo.gl/…"
+      maxlength={300}
+      hint="Opcional. Abrí la clínica en Google Maps, tocá «Compartir» y pegá el enlace acá."
+    />
+    <LocationPicker
+      prefix={p}
+      label="Compartí la ubicación exacta de la clínica"
+      hint="Opcional. Si estás en la clínica, usá tu ubicación actual para ubicarla con precisión. La usamos solo para conectarla con propietarios cercanos y podés quitarla cuando quieras."
+    />
     <Field prefix={p} name="website" label="Sitio web" inputmode="url" placeholder="https://tuclinica.cr" maxlength={200} />
     <div class="field-row cols-2">
       <Field prefix={p} name="instagram" label="Instagram" placeholder="@tuclinica" maxlength={200} />
       <Field prefix={p} name="facebook" label="Facebook" placeholder="facebook.com/tuclinica" maxlength={200} />
     </div>
-    <Field prefix={p} name="googleMapsUrl" label="Enlace de Google Maps" inputmode="url" placeholder="https://maps.app.goo.gl/…" maxlength={300} />
   </Step>
 
   <Step prefix={p} index={2} title={titles[2]!}>

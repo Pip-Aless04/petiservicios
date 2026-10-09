@@ -334,6 +334,7 @@ a {
 }
 
 .field > label,
+.field > .field-label,
 .choice-group > legend {
   padding: 0;
   font-weight: 800;
@@ -527,19 +528,55 @@ a {
   color: #5c120d;
 }
 
-.file-status {
+.file-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.file-list:empty {
+  display: none;
+}
+.file-list li {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.85rem;
+  border-radius: var(--radius-m);
+  background: var(--mint-100);
+  border: 1px solid var(--mint-200);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--green-700);
+  overflow-wrap: anywhere;
+}
+.file-list .btn {
+  min-height: 2.4rem;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.geo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.geo-actions .btn[hidden] {
+  display: none;
+}
+.geo-status {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--green-700);
 }
-.file-status .btn {
-  min-height: 2.4rem;
-  padding: 0.3rem 0.9rem;
-  font-size: 0.9rem;
+.geo-status:empty {
+  display: none;
+}
+.geo-status.is-error {
+  color: var(--danger, #b3261e);
 }
 
 .form-nav {

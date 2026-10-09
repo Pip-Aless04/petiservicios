@@ -25,15 +25,28 @@ import { SITE } from '../lib/constants';
       <h3>Si sos propietario/a</h3>
       <ul>
         <li>Tus datos de contacto: nombre, apellido, teléfono o WhatsApp, correo (si lo indicás) y cómo preferís que te contactemos.</li>
-        <li>Tu ubicación aproximada: provincia, cantón y distrito, y hasta dónde estarías dispuesto/a a trasladarte.</li>
-        <li>Datos básicos de tu mascota: nombre, especie, edad aproximada, sexo y peso (opcional).</li>
-        <li>Qué necesita tu mascota, una breve descripción, qué tan pronto lo necesitás y tu presupuesto aproximado (opcional).</li>
-        <li>Si tenés una cotización: el archivo que adjuntes (PDF o imagen) y los datos que escribas sobre ella.</li>
-        <li>Los factores que te importan al elegir una veterinaria.</li>
+        <li>
+          Tu ubicación, para buscar clínicas cercanas: provincia, cantón y distrito; si querés, tus señas
+          y un enlace de Google Maps o Waze; y hasta dónde estarías dispuesto/a a trasladarte.
+        </li>
+        <li>
+          Opcionalmente, tu ubicación exacta (coordenadas). Solo se solicita al navegador cuando tocás
+          «Usar mi ubicación actual»: el navegador te pide permiso y podés quitarla antes de enviar.
+        </li>
+        <li>Datos de tu mascota: nombre, especie, raza, edad aproximada, sexo, peso, si está castrada/esterilizada y si tiene las vacunas al día (varios son opcionales).</li>
+        <li>Qué necesita tu mascota, qué procedimiento o servicio querés cotizar, una descripción, qué tan pronto lo necesitás y tu presupuesto aproximado (opcional).</li>
+        <li>
+          Información de salud que decidas compartir (opcional): diagnóstico o indicación de un
+          veterinario, condiciones, alergias o medicamentos, y exámenes, radiografías o informes
+          que adjuntes.
+        </li>
+        <li>Si ya tenés cotizaciones: los archivos que adjuntes (PDF o imagen, hasta 3) y los datos que escribas sobre ellas, incluido por qué querés conocer otras opciones.</li>
+        <li>Los factores que te importan al elegir una veterinaria y cualquier nota adicional que escribas.</li>
       </ul>
       <h3>Si representás una clínica</h3>
       <ul>
         <li>Datos de la clínica y de la persona de contacto: nombre, cargo, teléfono, WhatsApp, correo, dirección y enlaces públicos.</li>
+        <li>Opcionalmente, la ubicación exacta de la clínica (coordenadas), solo si tocás «Usar mi ubicación actual» y das permiso en el navegador.</li>
         <li>Servicios y especies que atienden, y capacidades de la clínica.</li>
         <li>Tu interés en recibir solicitudes, cómo preparan cotizaciones y tiempos de respuesta.</li>
         <li>Tu opinión sobre posibles modelos comerciales (solo con fines de investigación).</li>
@@ -43,8 +56,9 @@ import { SITE } from '../lib/constants';
         formulario, la versión del formulario y si aceptaste esta política.
       </p>
       <p>
-        Te pedimos no incluir información que no sea necesaria. No necesitamos tu cédula, datos de
-        tarjetas ni historiales médicos completos.
+        Te pedimos no incluir información que no sea necesaria. No necesitamos tu cédula ni datos de
+        tarjetas. La información de salud de tu mascota y sus documentos son opcionales: compartí
+        solo lo que ayude a cotizar.
       </p>
 
       <h2>Para qué la usamos</h2>
@@ -58,7 +72,8 @@ import { SITE } from '../lib/constants';
       <h2>Con quién se comparte</h2>
       <p>
         Si te ayudamos a buscar opciones, podríamos compartir con las veterinarias la información
-        necesaria sobre la necesidad de tu mascota para que puedan responder. No vendemos tu
+        necesaria para que puedan cotizar, como lo que necesita tu mascota, sus datos básicos, la
+        información de salud o los documentos que hayas adjuntado, y tu zona. No vendemos tu
         información.
       </p>
 

@@ -21,6 +21,14 @@ export interface FormMetadata {
   antiSpamToken?: string;
 }
 
+/** Ubicación compartida por la persona con el botón "Usar mi ubicación actual" (opcional). */
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+  /** Precisión aproximada que informa el navegador, en metros. */
+  accuracyMeters?: number;
+}
+
 export type SubmitResult =
   | { ok: true; status: number; data: unknown }
   | {

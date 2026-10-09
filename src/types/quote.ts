@@ -14,10 +14,11 @@ export type Currency = 'CRC' | 'USD';
 
 export interface QuoteInformation {
   hasQuote: HasQuote;
-  /** Solo si hasQuote === 'si' y el usuario adjuntó un archivo. */
-  file?: UploadedFile;
+  /** Solo si hasQuote === 'si' y el usuario adjuntó archivos (hasta 3). */
+  files?: UploadedFile[];
   totalAmount?: number;
   currency?: Currency;
+  /** Procedimiento que indica la cotización (puede diferir del que busca cotizar). */
   procedure?: string;
   includes?: string;
   excludes?: string;
@@ -26,4 +27,6 @@ export interface QuoteInformation {
   /** Formato YYYY-MM-DD. */
   approximateDate?: string;
   clinicName?: string;
+  /** Por qué busca otra opción: 'cara' | 'segunda_opinion' | 'no_entiendo' | 'comparar'. */
+  lookingBecause?: string[];
 }

@@ -3,6 +3,7 @@ import Field from '../form/Field.astro';
 import Choice from '../form/Choice.astro';
 import Consent from '../form/Consent.astro';
 import FormShell from '../form/FormShell.astro';
+import LocationPicker from '../form/LocationPicker.astro';
 import Step from '../form/Step.astro';
 import Icon from '../Icon.astro';
 import {
@@ -14,17 +15,20 @@ import {
   PET_NEEDS,
   PET_SEX,
   PROVINCES,
+  QUOTE_REASONS,
   SPECIES,
   TRAVEL_DISTANCE,
   URGENCY,
+  YES_NO_UNSURE,
 } from '../../lib/constants';
 
 const p = 'owner';
 const titles = [
   'Tus datos',
-  'Dónde estás',
+  'Tu ubicación',
   'Tu mascota',
   'Qué necesita',
+  'Salud de tu mascota',
   'Cotización',
   'Presupuesto y preferencias',
 ];
@@ -74,12 +78,31 @@ const titles = [
     />
   </Step>
 
-  <Step prefix={p} index={1} title={titles[1]!} intro="Nos ayuda a buscar opciones que te queden razonablemente cerca.">
+  <Step prefix={p} index={1} title={titles[1]!} intro="Con tu ubicación buscamos clínicas que te queden cerca. Mientras más precisa, mejor.">
     <Field prefix={p} name="province" label="Provincia" kind="select" options={PROVINCES} required autocomplete="address-level1" />
     <div class="field-row cols-2">
       <Field prefix={p} name="canton" label="Cantón" required autocomplete="address-level2" maxlength={60} />
       <Field prefix={p} name="district" label="Distrito" autocomplete="address-level3" maxlength={60} />
     </div>
+    <Field
+      prefix={p}
+      name="address"
+      label="Señas o referencia"
+      autocomplete="street-address"
+      maxlength={200}
+      placeholder="Ej: 200 m sur de la iglesia de San Rafael"
+      hint="Nos sirve para calcular qué clínicas te quedan más cerca."
+    />
+    <Field
+      prefix={p}
+      name="googleMapsUrl"
+      label="Enlace de tu ubicación en Google Maps o Waze"
+      inputmode="url"
+      placeholder="https://maps.app.goo.gl/…"
+      maxlength={300}
+      hint="Opcional. Abrí Google Maps o Waze, tocá «Compartir» y pegá el enlace acá."
+    />
+    <LocationPicker prefix={p} />
     <Choice
       prefix={p}
       name="travelDistance"
@@ -88,7 +111,7 @@ const titles = [
     />
   </Step>
 
-  <Step prefix={p} index={2} title={titles[2]!} intro="Solo lo básico: no te pedimos información médica en este paso.">
+  <Step prefix={p} index={2} title={titles[2]!} intro="La especie, la edad y el peso suelen influir en el costo de un procedimiento.">
     <Field prefix={p} name="petName" label="Nombre de tu mascota" required maxlength={60} />
     <Choice prefix={p} name="species" legend="Especie" options={SPECIES} required compact wide />
     <Field
@@ -100,6 +123,7 @@ const titles = [
       showWhen="species=otra"
     />
     <div class="field-row cols-2">
+      <Field prefix={p} name="breed" label="Raza" maxlength={60} placeholder="Ej: Labrador, criollo, mestizo…" />
       <Field
         prefix={p}
         name="petAge"
@@ -108,15 +132,32 @@ const titles = [
         required
         maxlength={40}
       />
-      <Field
+    </div>
+    <Field
+      prefix={p}
+      name="petWeight"
+      label="Peso aproximado (kg)"
+      inputmode="decimal"
+      placeholder="Ej: 12,5"
+      hint="Si no lo sabés exacto, un estimado sirve."
+    />
+    <Choice prefix={p} name="petSex" legend="Sexo" options={PET_SEX} required compact />
+    <div class="field-row cols-2">
+      <Choice
         prefix={p}
-        name="petWeight"
-        label="Peso aproximado (kg)"
-        inputmode="decimal"
-        placeholder="Ej: 12,5"
+        name="sterilized"
+        legend="¿Está castrado/a o esterilizado/a?"
+        options={YES_NO_UNSURE}
+        inline
+      />
+      <Choice
+        prefix={p}
+        name="vaccines"
+        legend="¿Tiene las vacunas al día?"
+        options={YES_NO_UNSURE}
+        inline
       />
     </div>
-    <Choice prefix={p} name="petSex" legend="Sexo" options={PET_SEX} required compact />
   </Step>
 
   <Step prefix={p} index={3} title={titles[3]!}>
@@ -141,12 +182,20 @@ const titles = [
     />
     <Field
       prefix={p}
-      name="description"
-      label="Contanos brevemente qué necesitás"
-      kind="textarea"
+      name="procedure"
+      label="¿Qué procedimiento o servicio querés cotizar?"
       required
+      maxlength={150}
+      placeholder="Ej: limpieza dental, castración, cirugía de rodilla…"
+      hint="Escribilo con tus palabras. Si no sabés el nombre exacto, describilo."
+    />
+    <Field
+      prefix={p}
+      name="description"
+      label="Contanos más detalles de la situación"
+      kind="textarea"
       maxlength={1000}
-      hint="Por ejemplo: qué procedimiento te indicaron o qué estás buscando comparar."
+      hint="Por ejemplo: síntomas, desde cuándo, qué te explicó el veterinario o qué querés comparar."
     />
     <Choice
       prefix={p}
@@ -161,7 +210,35 @@ const titles = [
     </div>
   </Step>
 
-  <Step prefix={p} index={4} title={titles[4]!} intro="Si ya tenés una cotización, nos ayuda a entender mejor qué estás comparando.">
+  <Step prefix={p} index={4} title={titles[4]!} intro="Todo es opcional. Si lo tenés a mano, las clínicas podrán cotizar con más precisión.">
+    <Field
+      prefix={p}
+      name="diagnosis"
+      label="¿Un veterinario ya le dio un diagnóstico o una indicación?"
+      kind="textarea"
+      rows={3}
+      maxlength={1000}
+      placeholder="Ej: displasia de cadera, se recomienda cirugía"
+    />
+    <Field
+      prefix={p}
+      name="conditions"
+      label="¿Tiene condiciones de salud, alergias o toma medicamentos?"
+      kind="textarea"
+      rows={3}
+      maxlength={1000}
+      placeholder="Ej: alérgica a la penicilina, toma medicina para el corazón"
+    />
+    <Field
+      prefix={p}
+      name="supportingFiles"
+      label="Exámenes, radiografías o informes"
+      kind="file"
+      multiple
+    />
+  </Step>
+
+  <Step prefix={p} index={5} title={titles[5]!} intro="Si ya tenés una cotización, nos ayuda a entender mejor qué estás comparando.">
     <Choice
       prefix={p}
       name="hasQuote"
@@ -172,8 +249,8 @@ const titles = [
     />
     <div class="subsection" data-show-when="hasQuote=si" hidden>
       <h4>Datos de tu cotización</h4>
-      <p class="field-hint">Todo es opcional: con el monto o el archivo nos alcanza para empezar.</p>
-      <Field prefix={p} name="quoteFile" label="Adjuntá la cotización" kind="file" />
+      <p class="field-hint">Todo es opcional: con el archivo o el monto nos alcanza para empezar.</p>
+      <Field prefix={p} name="quoteFiles" label="Adjuntá la cotización" kind="file" multiple />
       <div class="field-row cols-2">
         <Field
           prefix={p}
@@ -192,7 +269,12 @@ const titles = [
           required
         />
       </div>
-      <Field prefix={p} name="quoteProcedure" label="Procedimiento indicado" maxlength={200} />
+      <Field
+        prefix={p}
+        name="quoteProcedure"
+        label="Procedimiento que indica la cotización"
+        maxlength={200}
+      />
       <Field
         prefix={p}
         name="quoteIncludes"
@@ -221,10 +303,19 @@ const titles = [
         <Field prefix={p} name="quoteDate" label="Fecha aproximada de la cotización" type="date" />
         <Field prefix={p} name="quoteClinic" label="Nombre de la veterinaria" maxlength={120} />
       </div>
+      <Choice
+        prefix={p}
+        name="lookingBecause"
+        legend="¿Por qué querés conocer otras opciones?"
+        hint="Podés elegir más de una opción."
+        type="checkbox"
+        options={QUOTE_REASONS}
+        compact
+      />
     </div>
   </Step>
 
-  <Step prefix={p} index={5} title={titles[5]!} intro="Último paso: nada de esto es obligatorio, pero nos ayuda a buscar mejor.">
+  <Step prefix={p} index={6} title={titles[6]!} intro="Último paso: nada de esto es obligatorio, pero nos ayuda a buscar mejor.">
     <Choice
       prefix={p}
       name="budgetRange"
@@ -249,6 +340,14 @@ const titles = [
       required
       maxlength={100}
       showWhen="factors=otro"
+    />
+    <Field
+      prefix={p}
+      name="additionalNotes"
+      label="¿Algo más que debamos saber?"
+      kind="textarea"
+      rows={3}
+      maxlength={1000}
     />
     <Consent prefix={p} />
   </Step>

@@ -11,8 +11,10 @@
  */
 import { getAntiSpamToken, isApiConfigured } from './api';
 import { track } from './analytics';
+import { initLocationPickers } from './geolocation';
 import { buildMetadata, checked, fileToUploadedFile } from './payload';
 import {
+  filesOf,
   validateField,
   validateFields,
   type Errors,
@@ -25,8 +27,8 @@ import type { UploadedFile } from '../types/quote';
 
 export interface BuildContext {
   values: Values;
-  /** Archivos adjuntos ya serializados, por nombre de campo. */
-  files: Record<string, UploadedFile>;
+  /** Archivos adjuntos ya serializados, por nombre de campo (cada campo admite varios). */
+  files: Record<string, UploadedFile[]>;
   metadata: FormMetadata;
 }
 
@@ -105,7 +107,9 @@ export function initMultiStepForm<TPayload>(
       if (el instanceof HTMLInputElement) {
         if (el.type === 'checkbox') {
           const existing = values[el.name];
-          const list = Array.isArray(existing) ? existing : [];
+          const list = Array.isArray(existing)
+            ? existing.filter((v): v is string => typeof v === 'string')
+            : [];
           if (el.checked) list.push(el.value);
           values[el.name] = list;
           continue;
@@ -116,7 +120,8 @@ export function initMultiStepForm<TPayload>(
           continue;
         }
         if (el.type === 'file') {
-          values[el.name] = el.files?.[0] ?? null;
+          const picked = Array.from(el.files ?? []);
+          values[el.name] = el.multiple ? picked : (picked[0] ?? null);
           continue;
         }
       }
@@ -142,7 +147,7 @@ export function initMultiStepForm<TPayload>(
       const accepted = expected.split('|');
       const selected = values[name ?? ''];
       const visible = Array.isArray(selected)
-        ? selected.some((v) => accepted.includes(v))
+        ? selected.some((v) => typeof v === 'string' && accepted.includes(v))
         : typeof selected === 'string' && accepted.includes(selected);
       block.hidden = !visible;
       for (const el of Array.from(block.querySelectorAll('input, select, textarea'))) {
@@ -272,9 +277,10 @@ export function initMultiStepForm<TPayload>(
 
     try {
       const values = readValues();
-      const files: Record<string, UploadedFile> = {};
+      const files: Record<string, UploadedFile[]> = {};
       for (const [name, value] of Object.entries(values)) {
-        if (value instanceof File) files[name] = await fileToUploadedFile(value);
+        const attached = filesOf(value);
+        if (attached.length > 0) files[name] = await Promise.all(attached.map(fileToUploadedFile));
       }
       const metadata = buildMetadata(
         config.formType,
@@ -310,13 +316,74 @@ export function initMultiStepForm<TPayload>(
 
   // --- Archivos --------------------------------------------------------------
 
-  function updateFileStatus(input: HTMLInputElement): void {
-    const wrapper = input.closest<HTMLElement>('[data-field]');
-    const label = wrapper?.querySelector<HTMLElement>('[data-file-name]');
-    const clear = wrapper?.querySelector<HTMLElement>('[data-file-clear]');
-    const file = input.files?.[0];
-    if (label) label.textContent = file ? `${file.name} (${Math.ceil(file.size / 1024)} KB)` : '';
-    if (clear) clear.hidden = !file;
+  // Archivos confirmados por campo. El input nativo se va reemplazando con cada selección,
+  // así que guardamos la lista válida para poder ir agregando de a uno y revertir si algo falla.
+  const accepted = new WeakMap<HTMLInputElement, File[]>();
+
+  const sameFile = (a: File, b: File): boolean =>
+    a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+
+  /** Deja en el input exactamente estos archivos (el navegador no permite editar `files` de otra forma). */
+  function setInputFiles(input: HTMLInputElement, files: File[]): void {
+    const transfer = new DataTransfer();
+    for (const file of files) transfer.items.add(file);
+    input.files = transfer.files;
+  }
+
+  function renderFileList(input: HTMLInputElement): void {
+    const list = input.closest<HTMLElement>('[data-field]')?.querySelector<HTMLElement>('[data-file-list]');
+    if (!list) return;
+    list.replaceChildren();
+    Array.from(input.files ?? []).forEach((file, index) => {
+      const item = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = `${file.name} (${Math.max(1, Math.ceil(file.size / 1024))} KB)`;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'btn btn-ghost';
+      remove.dataset.fileRemove = String(index);
+      remove.textContent = 'Quitar';
+      remove.setAttribute('aria-label', `Quitar archivo ${file.name}`);
+      item.append(name, remove);
+      list.append(item);
+    });
+  }
+
+  function handleFileChange(input: HTMLInputElement): void {
+    const previous = accepted.get(input) ?? [];
+    const picked = Array.from(input.files ?? []);
+    const merged = input.multiple
+      ? [...previous, ...picked.filter((f) => !previous.some((p) => sameFile(p, f)))]
+      : picked;
+    setInputFiles(input, merged);
+
+    const value = input.multiple ? merged : (merged[0] ?? null);
+    const error = merged.length > 0 ? validateField(input.name, value, readValues(), config.schema) : null;
+    if (error) {
+      // Mantiene lo que ya estaba bien adjunto y avisa por qué no se agregó lo nuevo.
+      setInputFiles(input, previous);
+      setError(input.name, error);
+    } else {
+      setError(input.name, null);
+      accepted.set(input, merged);
+      for (const file of merged.filter((f) => !previous.some((p) => sameFile(p, f)))) {
+        track('file_attached', {
+          formType: config.formType,
+          extension: file.name.split('.').pop()?.toLowerCase() ?? '',
+          sizeKb: Math.ceil(file.size / 1024),
+        });
+      }
+    }
+    renderFileList(input);
+  }
+
+  function removeFile(input: HTMLInputElement, index: number): void {
+    const remaining = Array.from(input.files ?? []).filter((_, i) => i !== index);
+    setInputFiles(input, remaining);
+    accepted.set(input, remaining);
+    setError(input.name, null);
+    renderFileList(input);
+    input.focus();
   }
 
   // --- Eventos ---------------------------------------------------------------
@@ -336,24 +403,7 @@ export function initMultiStepForm<TPayload>(
     if (!(target instanceof Element) || !isControl(target)) return;
     updateConditionals();
 
-    if (target instanceof HTMLInputElement && target.type === 'file') {
-      const file = target.files?.[0];
-      const error = file ? validateField(target.name, file, readValues(), config.schema) : null;
-      if (file && error) {
-        setError(target.name, error);
-        target.value = '';
-      } else {
-        setError(target.name, null);
-        if (file) {
-          track('file_attached', {
-            formType: config.formType,
-            extension: file.name.split('.').pop()?.toLowerCase() ?? '',
-            sizeKb: Math.ceil(file.size / 1024),
-          });
-        }
-      }
-      updateFileStatus(target);
-    }
+    if (target instanceof HTMLInputElement && target.type === 'file') handleFileChange(target);
   });
 
   // Corrige en vivo solo los campos que ya muestran un error.
@@ -381,16 +431,23 @@ export function initMultiStepForm<TPayload>(
   form.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
-    if (target.closest('[data-file-clear]')) {
-      const wrapper = target.closest<HTMLElement>('[data-field]');
-      const input = wrapper?.querySelector<HTMLInputElement>('input[type="file"]');
-      if (input) {
-        input.value = '';
-        updateFileStatus(input);
-        setError(input.name, null);
-        input.focus();
-      }
+    const remove = target.closest<HTMLElement>('[data-file-remove]');
+    if (remove) {
+      const input = remove
+        .closest<HTMLElement>('[data-field]')
+        ?.querySelector<HTMLInputElement>('input[type="file"]');
+      if (input) removeFile(input, Number(remove.dataset.fileRemove));
     }
+  });
+
+  // `form.reset()` (al enviar con éxito) vacía los inputs de archivo: sincronizamos la lista visible.
+  form.addEventListener('reset', () => {
+    setTimeout(() => {
+      for (const input of Array.from(form.querySelectorAll<HTMLInputElement>('input[type="file"]'))) {
+        accepted.set(input, []);
+        renderFileList(input);
+      }
+    }, 0);
   });
 
   prevButton.addEventListener('click', () => goTo(current - 1));
@@ -420,6 +477,7 @@ export function initMultiStepForm<TPayload>(
   // --- Inicio ----------------------------------------------------------------
 
   if (configPanel && !isApiConfigured() && import.meta.env.DEV) configPanel.hidden = false;
+  initLocationPickers(form);
   setStatus('idle');
   updateConditionals();
   goTo(0, false);
