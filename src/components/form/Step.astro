@@ -1,0 +1,23 @@
+---
+/** Un paso del formulario multi-paso. Solo el primero arranca visible. */
+interface Props {
+  prefix: string;
+  index: number;
+  title: string;
+  intro?: string;
+}
+const { prefix, index, title, intro } = Astro.props;
+const headingId = `${prefix}-step-${index + 1}-title`;
+---
+
+<section
+  class="form-step"
+  data-step
+  data-title={title}
+  aria-labelledby={headingId}
+  hidden={index > 0 ? true : undefined}
+>
+  <h3 class="step-heading" id={headingId} data-step-heading tabindex="-1">{title}</h3>
+  {intro && <p class="step-intro">{intro}</p>}
+  <slot />
+</section>

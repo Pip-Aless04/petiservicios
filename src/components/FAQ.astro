@@ -1,0 +1,113 @@
+---
+const faqs = [
+  {
+    q: '¿Qué es Peti?',
+    a: 'Peti es un servicio que ayuda a dueños de mascotas a entender y comparar opciones veterinarias cuando necesitan un procedimiento. Conectamos propietarios con establecimientos veterinarios y te presentamos la información de forma clara.',
+  },
+  {
+    q: '¿Peti es una veterinaria?',
+    a: 'No. Peti no atiende mascotas ni ofrece servicios veterinarios. Somos un servicio de información y conexión entre propietarios y establecimientos veterinarios.',
+  },
+  {
+    q: '¿Peti recomienda tratamientos?',
+    a: 'No. Peti no diagnostica, no prescribe y no decide qué necesita tu mascota. Eso le corresponde siempre a un profesional veterinario.',
+  },
+  {
+    q: '¿Peti busca siempre la opción más barata?',
+    a: 'No. El precio es solo un factor. Lo que buscamos es que entiendas qué incluye cada opción (procedimiento, anestesia, controles, hospitalización) para que puedas compararlas bien y elegir la que mejor se adapte a vos y a tu mascota.',
+  },
+  {
+    q: '¿Tiene algún costo para el propietario?',
+    a: 'Por ahora, enviar tu solicitud no tiene ningún costo para vos.',
+  },
+  {
+    q: '¿Qué pasa si ya tengo una cotización?',
+    a: 'Mejor todavía. Podés adjuntarla (PDF o imagen) e indicarnos el monto y qué incluye. Con eso entendemos mejor qué estás comparando.',
+  },
+  {
+    q: '¿Puedo solicitar una segunda opinión?',
+    a: 'Sí. Si tu mascota necesita un procedimiento costoso y querés conocer otras alternativas, contanos tu caso en el formulario.',
+  },
+  {
+    q: '¿Qué ocurre si mi mascota necesita atención urgente?',
+    a: 'Si tu mascota presenta una situación que podría poner en riesgo su vida o bienestar, buscá atención veterinaria inmediata. Peti no sustituye la atención de emergencia.',
+  },
+];
+---
+
+<section class="section faq" id="preguntas" aria-labelledby="faq-title">
+  <div class="container narrow">
+    <div class="section-head">
+      <h2 id="faq-title">Preguntas frecuentes</h2>
+    </div>
+    <div class="list">
+      {
+        faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    background: var(--surface);
+  }
+  .narrow {
+    max-width: 52rem;
+  }
+  .list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    background: var(--cream);
+  }
+  details[open] {
+    border-color: var(--green-500);
+    background: #fff;
+  }
+  summary {
+    position: relative;
+    display: block;
+    padding: 1.1rem 3.25rem 1.1rem 1.25rem;
+    font-weight: 800;
+    color: var(--navy-700);
+    cursor: pointer;
+    list-style: none;
+    line-height: 1.35;
+    border-radius: var(--radius-m);
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::after {
+    content: '+';
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--green-100);
+    color: var(--green-700);
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+  details[open] > summary::after {
+    content: '−';
+  }
+  details p {
+    padding: 0 1.25rem 1.25rem;
+    color: var(--muted);
+  }
+</style>

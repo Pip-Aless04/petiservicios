@@ -1,0 +1,66 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Problem from '../components/Problem.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import TrustSection from '../components/TrustSection.astro';
+import OwnerForm from '../components/OwnerForm/OwnerForm.astro';
+import VeterinaryForm from '../components/VeterinaryForm/VeterinaryForm.astro';
+import FAQ from '../components/FAQ.astro';
+---
+
+<Layout title="Peti | Compará opciones veterinarias en Costa Rica">
+  <Hero />
+  <Problem />
+  <HowItWorks />
+  <TrustSection />
+
+  <section class="section form-section owners" id="para-propietarios" aria-labelledby="owners-title">
+    <div class="container narrow">
+      <div class="section-head">
+        <span class="eyebrow">Para propietarios</span>
+        <h2 id="owners-title">¿Necesitás comparar opciones para tu mascota?</h2>
+        <p>
+          Contanos qué necesita y buscamos opciones compatibles. Son pocos pasos, podés avanzar a tu
+          ritmo y casi todo es opcional.
+        </p>
+      </div>
+      <OwnerForm />
+    </div>
+  </section>
+
+  <section class="section form-section vets" id="para-veterinarias" aria-labelledby="vets-title">
+    <div class="container narrow">
+      <div class="section-head">
+        <span class="eyebrow">Para veterinarias</span>
+        <h2 id="vets-title">¿Sos veterinario/a o representás una clínica?</h2>
+        <p>
+          Peti está en etapa de validación. Si te interesa recibir solicitudes de propietarios que
+          buscan opciones para procedimientos, dejanos los datos de tu clínica. Registrarte no tiene
+          costo ni genera ningún compromiso.
+        </p>
+        <a class="btn btn-navy" href="#formulario-veterinarias" data-track="cta_vet_click" data-track-location="vet-section">
+          Quiero colaborar con Peti
+        </a>
+      </div>
+      <VeterinaryForm />
+    </div>
+  </section>
+
+  <FAQ />
+</Layout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+  .owners {
+    background: var(--cream);
+  }
+  .vets {
+    background: var(--mint-100);
+  }
+  .section-head .btn {
+    justify-self: start;
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+/**
+ * Estructura común de los formularios multi-paso: progreso, navegación y paneles de estado.
+ * Slots: (default) pasos del formulario · "success" contenido de confirmación.
+ */
+interface Props {
+  id: string;
+  formType: 'owner_request' | 'veterinary_registration';
+  stepCount: number;
+  firstStepTitle: string;
+  submitLabel: string;
+  label: string;
+}
+const { id, formType, stepCount, firstStepTitle, submitLabel, label } = Astro.props;
+---
+
+<div class="form-card" id={id} data-form-card data-form-type={formType} data-status="idle">
+  <div class="notice danger form-panel" data-panel="config" role="alert" hidden>
+    <strong>Falta configurar el destino del formulario.</strong>
+    Definí <code>PUBLIC_FORM_API_URL</code> en tu archivo <code>.env</code> y reiniciá el servidor de
+    desarrollo. Mientras tanto, el envío mostrará un error de configuración.
+  </div>
+
+  <form data-form-root novalidate aria-label={label} autocomplete="on">
+    <div class="progress">
+      <div class="progress-top">
+        <p class="progress-label" data-progress-label aria-live="polite">Paso 1 de {stepCount}</p>
+        <p class="progress-title" data-progress-title>{firstStepTitle}</p>
+      </div>
+      <div
+        class="progress-track"
+        role="progressbar"
+        aria-label="Progreso del formulario"
+        aria-valuemin="1"
+        aria-valuemax={stepCount}
+        aria-valuenow="1"
+        aria-valuetext={`Paso 1 de ${stepCount}`}
+      >
+        <span class="progress-bar" data-progress-bar style={`width:${100 / stepCount}%`}></span>
+      </div>
+    </div>
+
+    <slot />
+
+    <!-- Honeypot anti-spam: invisible para personas; un bot que lo llena no envía nada. -->
+    <div class="hp-field" aria-hidden="true">
+      <label>
+        No completes este campo
+        <input type="text" name="hp_company" tabindex="-1" autocomplete="off" />
+      </label>
+    </div>
+
+    <div class="notice danger form-panel" data-panel="error" role="alert" hidden>
+      <strong>No pudimos enviar tu información.</strong>
+      <span data-error-message></span>
+      Tus respuestas siguen acá: podés intentar de nuevo.
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-secondary" data-prev hidden>Atrás</button>
+      <button type="button" class="btn btn-primary" data-next>Siguiente</button>
+      <button type="submit" class="btn btn-primary" data-submit hidden>{submitLabel}</button>
+    </div>
+  </form>
+
+  <div class="success-panel" data-panel="success" tabindex="-1" role="status" hidden>
+    <slot name="success" />
+  </div>
+</div>

@@ -1,0 +1,105 @@
+---
+const steps = [
+  {
+    title: 'Contanos qué necesita tu mascota.',
+    text: 'Completás un formulario corto, sin pedirte información médica innecesaria.',
+  },
+  {
+    title: 'Analizamos tu solicitud.',
+    text: 'Revisamos lo que necesitás y, si ya tenés una cotización, qué incluye.',
+  },
+  {
+    title: 'Buscamos opciones compatibles.',
+    text: 'Buscamos establecimientos veterinarios que podrían atender tu necesidad.',
+  },
+  {
+    title: 'Comparás y decidís.',
+    text: 'Si encontramos opciones, te las presentamos con claridad para que elijas vos.',
+  },
+];
+---
+
+<section class="section how" id="como-funciona" aria-labelledby="como-title">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="como-title">Cómo funciona</h2>
+      <p>Cuatro pasos simples, pensados para que tengas más información y menos incertidumbre.</p>
+    </div>
+
+    <ol class="steps">
+      {
+        steps.map((s, i) => (
+          <li class="step">
+            <span class="num" aria-hidden="true">{i + 1}</span>
+            <h3>
+              <span class="visually-hidden">Paso {i + 1}: </span>
+              {s.title}
+            </h3>
+            <p>{s.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="callout">
+      <strong>Peti no decide por vos.</strong> Te ayudamos a tener mejor información para decidir.
+    </p>
+  </div>
+</section>
+
+<style>
+  .how {
+    background: var(--mint-100);
+  }
+  .steps {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+  .step {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.4rem;
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    box-shadow: var(--shadow-s);
+  }
+  .num {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin-bottom: 0.25rem;
+    border-radius: 50%;
+    background: var(--green-700);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+  .step p {
+    color: var(--muted);
+  }
+  .callout {
+    margin-top: 2rem;
+    padding: 1.25rem 1.5rem;
+    border-left: 6px solid var(--green-500);
+    border-radius: var(--radius-s);
+    background: var(--surface);
+    color: var(--navy-700);
+    font-size: 1.15rem;
+  }
+  @media (min-width: 40rem) {
+    .steps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 62rem) {
+    .steps {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+  }
+</style>

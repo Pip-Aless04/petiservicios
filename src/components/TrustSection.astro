@@ -1,0 +1,106 @@
+---
+import Icon from './Icon.astro';
+
+const points = [
+  'No recomendamos tratamientos médicos.',
+  'No sustituimos al veterinario.',
+  'No calificamos una clínica únicamente por precio.',
+  'Presentamos la información de forma clara.',
+  'Vos mantenés la decisión final.',
+];
+---
+
+<section class="section trust" id="confianza" aria-labelledby="confianza-title">
+  <div class="container">
+    <div class="head">
+      <span class="eyebrow">Transparencia</span>
+      <h2 id="confianza-title">Información clara, decisión tuya</h2>
+      <p>
+        Peti es un intermediario de información. Esto es lo que hacemos, y lo que no, para que sepas
+        exactamente en qué podemos ayudarte.
+      </p>
+    </div>
+
+    <ul class="points">
+      {
+        points.map((p) => (
+          <li>
+            <span class="tick"><Icon name="check" size={20} /></span>
+            <span>{p}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="disclaimer">
+      Peti es un servicio de información y conexión entre propietarios y establecimientos
+      veterinarios. No sustituye la valoración, diagnóstico ni tratamiento de un profesional
+      veterinario.
+    </p>
+  </div>
+</section>
+
+<style>
+  .trust {
+    background: var(--navy-700);
+    color: #fff;
+  }
+  .head {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 44rem;
+    margin-bottom: 2.25rem;
+    justify-items: start;
+  }
+  .trust h2 {
+    color: #fff;
+  }
+  .head p {
+    color: #d3e0ec;
+    font-size: 1.1rem;
+  }
+  .points {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .points li {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-m);
+    background: rgb(255 255 255 / 9%);
+    border: 1px solid rgb(255 255 255 / 16%);
+    font-weight: 700;
+    font-size: 1.08rem;
+  }
+  .tick {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--green-700);
+  }
+  .disclaimer {
+    max-width: 48rem;
+    margin-top: 2rem;
+    color: #d3e0ec;
+    font-size: 0.97rem;
+  }
+  @media (min-width: 48rem) {
+    .points {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 62rem) {
+    .points {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

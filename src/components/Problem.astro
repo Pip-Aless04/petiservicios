@@ -1,0 +1,100 @@
+---
+import Icon from './Icon.astro';
+
+const questions = [
+  { icon: 'tag', text: '¿Este precio es normal?' },
+  { icon: 'list', text: '¿Qué incluye realmente?' },
+  { icon: 'compare', text: '¿Hay otras opciones?' },
+  { icon: 'scale', text: '¿Por qué una clínica cobra diferente?' },
+  { icon: 'wallet', text: '¿Cuánto terminaré pagando realmente?' },
+  { icon: 'message', text: '¿Vale la pena pedir una segunda opinión?' },
+] as const;
+---
+
+<section class="section problem" aria-labelledby="problema-title">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="problema-title">Cuando tu mascota necesita un procedimiento costoso, aparecen las dudas</h2>
+      <p>
+        Es normal sentirse con más preguntas que respuestas. Estas son algunas que se hacen muchos
+        propietarios antes de decidir:
+      </p>
+    </div>
+
+    <ul class="cards">
+      {
+        questions.map((q) => (
+          <li class="card">
+            <span class="icon"><Icon name={q.icon} size={26} /></span>
+            <span class="q">{q.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="closing">
+      En Peti te ayudamos a ordenar esa información para que decidas con más claridad.
+    </p>
+  </div>
+</section>
+
+<style>
+  .problem {
+    background: var(--surface);
+  }
+  .cards {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    background: var(--cream);
+  }
+  .icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--green-100);
+    color: var(--green-700);
+  }
+  .q {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--navy-700);
+    line-height: 1.3;
+  }
+  .closing {
+    margin-top: 2rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy-700);
+  }
+  @media (min-width: 40rem) {
+    .cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 62rem) {
+    .cards {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .card {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.5rem;
+      min-height: 10rem;
+    }
+  }
+</style>

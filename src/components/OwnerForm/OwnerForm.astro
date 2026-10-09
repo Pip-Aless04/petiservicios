@@ -1,0 +1,273 @@
+---
+import Field from '../form/Field.astro';
+import Choice from '../form/Choice.astro';
+import Consent from '../form/Consent.astro';
+import FormShell from '../form/FormShell.astro';
+import Step from '../form/Step.astro';
+import Icon from '../Icon.astro';
+import {
+  BUDGET_RANGES,
+  CONTACT_METHODS,
+  CURRENCIES,
+  HAS_QUOTE,
+  OWNER_FACTORS,
+  PET_NEEDS,
+  PET_SEX,
+  PROVINCES,
+  SPECIES,
+  TRAVEL_DISTANCE,
+  URGENCY,
+} from '../../lib/constants';
+
+const p = 'owner';
+const titles = [
+  'Tus datos',
+  'Dónde estás',
+  'Tu mascota',
+  'Qué necesita',
+  'Cotización',
+  'Presupuesto y preferencias',
+];
+---
+
+<FormShell
+  id="formulario-propietarios"
+  formType="owner_request"
+  stepCount={titles.length}
+  firstStepTitle={titles[0]!}
+  submitLabel="Enviar solicitud"
+  label="Solicitud de ayuda para tu mascota"
+>
+  <Step prefix={p} index={0} title={titles[0]!} intro="Con esto podemos contactarte si encontramos opciones para vos.">
+    <div class="field-row cols-2">
+      <Field prefix={p} name="firstName" label="Nombre" required autocomplete="given-name" maxlength={60} />
+      <Field prefix={p} name="lastName" label="Apellido" required autocomplete="family-name" maxlength={80} />
+    </div>
+    <Field
+      prefix={p}
+      name="phone"
+      label="Teléfono / WhatsApp"
+      type="tel"
+      inputmode="tel"
+      autocomplete="tel"
+      placeholder="8888 8888"
+      required
+    />
+    <Choice
+      prefix={p}
+      name="preferredContact"
+      legend="¿Cómo preferís que te contactemos?"
+      options={CONTACT_METHODS}
+      required
+      inline
+    />
+    <Field
+      prefix={p}
+      name="email"
+      label="Correo electrónico"
+      type="email"
+      inputmode="email"
+      autocomplete="email"
+      placeholder="nombre@correo.com"
+      hint="Obligatorio solo si preferís que te contactemos por correo."
+      maxlength={120}
+    />
+  </Step>
+
+  <Step prefix={p} index={1} title={titles[1]!} intro="Nos ayuda a buscar opciones que te queden razonablemente cerca.">
+    <Field prefix={p} name="province" label="Provincia" kind="select" options={PROVINCES} required autocomplete="address-level1" />
+    <div class="field-row cols-2">
+      <Field prefix={p} name="canton" label="Cantón" required autocomplete="address-level2" maxlength={60} />
+      <Field prefix={p} name="district" label="Distrito" autocomplete="address-level3" maxlength={60} />
+    </div>
+    <Choice
+      prefix={p}
+      name="travelDistance"
+      legend="¿Qué tan lejos estarías dispuesto/a a trasladarte?"
+      options={TRAVEL_DISTANCE}
+    />
+  </Step>
+
+  <Step prefix={p} index={2} title={titles[2]!} intro="Solo lo básico: no te pedimos información médica en este paso.">
+    <Field prefix={p} name="petName" label="Nombre de tu mascota" required maxlength={60} />
+    <Choice prefix={p} name="species" legend="Especie" options={SPECIES} required compact wide />
+    <Field
+      prefix={p}
+      name="speciesOther"
+      label="¿Qué tipo de animal es?"
+      required
+      maxlength={60}
+      showWhen="species=otra"
+    />
+    <div class="field-row cols-2">
+      <Field
+        prefix={p}
+        name="petAge"
+        label="Edad aproximada"
+        placeholder="Ej: 3 años, 8 meses"
+        required
+        maxlength={40}
+      />
+      <Field
+        prefix={p}
+        name="petWeight"
+        label="Peso aproximado (kg)"
+        inputmode="decimal"
+        placeholder="Ej: 12,5"
+      />
+    </div>
+    <Choice prefix={p} name="petSex" legend="Sexo" options={PET_SEX} required compact />
+  </Step>
+
+  <Step prefix={p} index={3} title={titles[3]!}>
+    <Choice
+      prefix={p}
+      name="needs"
+      legend="¿Qué necesita tu mascota?"
+      hint="Podés elegir más de una opción."
+      type="checkbox"
+      options={PET_NEEDS}
+      required
+      compact
+      wide
+    />
+    <Field
+      prefix={p}
+      name="needsOther"
+      label="¿Qué otra necesidad tiene?"
+      required
+      maxlength={100}
+      showWhen="needs=otro"
+    />
+    <Field
+      prefix={p}
+      name="description"
+      label="Contanos brevemente qué necesitás"
+      kind="textarea"
+      required
+      maxlength={1000}
+      hint="Por ejemplo: qué procedimiento te indicaron o qué estás buscando comparar."
+    />
+    <Choice
+      prefix={p}
+      name="urgency"
+      legend="¿Qué tan pronto necesitás resolverlo?"
+      options={URGENCY}
+      required
+    />
+    <div class="notice danger" data-show-when="urgency=hoy" role="alert" hidden>
+      Si tu mascota está en una situación de emergencia o presenta síntomas graves, buscá atención
+      veterinaria inmediata. Peti no sustituye la atención de emergencia.
+    </div>
+  </Step>
+
+  <Step prefix={p} index={4} title={titles[4]!} intro="Si ya tenés una cotización, nos ayuda a entender mejor qué estás comparando.">
+    <Choice
+      prefix={p}
+      name="hasQuote"
+      legend="¿Ya tenés una cotización de una veterinaria?"
+      options={HAS_QUOTE}
+      required
+      inline
+    />
+    <div class="subsection" data-show-when="hasQuote=si" hidden>
+      <h4>Datos de tu cotización</h4>
+      <p class="field-hint">Todo es opcional: con el monto o el archivo nos alcanza para empezar.</p>
+      <Field prefix={p} name="quoteFile" label="Adjuntá la cotización" kind="file" />
+      <div class="field-row cols-2">
+        <Field
+          prefix={p}
+          name="quoteAmount"
+          label="Monto total"
+          inputmode="decimal"
+          placeholder="Ej: 150000"
+        />
+        <Field
+          prefix={p}
+          name="quoteCurrency"
+          label="Moneda"
+          kind="select"
+          options={CURRENCIES}
+          defaultValue="CRC"
+          required
+        />
+      </div>
+      <Field prefix={p} name="quoteProcedure" label="Procedimiento indicado" maxlength={200} />
+      <Field
+        prefix={p}
+        name="quoteIncludes"
+        label="¿Qué incluye?"
+        kind="textarea"
+        rows={3}
+        maxlength={1000}
+        placeholder="Ej: anestesia, hospitalización por una noche, controles…"
+      />
+      <Field
+        prefix={p}
+        name="quoteExcludes"
+        label="¿Qué no incluye?"
+        kind="textarea"
+        rows={3}
+        maxlength={1000}
+      />
+      <Choice
+        prefix={p}
+        name="quoteUnsure"
+        legend="Si no tenés claro qué incluye"
+        type="checkbox"
+        options={[{ value: 'si', label: 'No estoy seguro/a de qué incluye' }]}
+      />
+      <div class="field-row cols-2">
+        <Field prefix={p} name="quoteDate" label="Fecha aproximada de la cotización" type="date" />
+        <Field prefix={p} name="quoteClinic" label="Nombre de la veterinaria" maxlength={120} />
+      </div>
+    </div>
+  </Step>
+
+  <Step prefix={p} index={5} title={titles[5]!} intro="Último paso: nada de esto es obligatorio, pero nos ayuda a buscar mejor.">
+    <Choice
+      prefix={p}
+      name="budgetRange"
+      legend="¿Tenés un presupuesto aproximado?"
+      options={BUDGET_RANGES}
+      compact
+    />
+    <Choice
+      prefix={p}
+      name="factors"
+      legend="¿Qué factores son importantes para vos al elegir una veterinaria?"
+      hint="Podés elegir más de una opción."
+      type="checkbox"
+      options={OWNER_FACTORS}
+      compact
+      wide
+    />
+    <Field
+      prefix={p}
+      name="factorsOther"
+      label="¿Qué otro factor es importante?"
+      required
+      maxlength={100}
+      showWhen="factors=otro"
+    />
+    <Consent prefix={p} />
+  </Step>
+
+  <Fragment slot="success">
+    <span class="success-icon"><Icon name="check" size={28} /></span>
+    <h3>¡Gracias! Recibimos tu solicitud.</h3>
+    <p>Revisaremos la información y nos pondremos en contacto con vos si podemos ayudarte.</p>
+    <ol class="next-steps">
+      <li>Analizamos lo que nos contaste sobre tu mascota.</li>
+      <li>Buscamos opciones compatibles con tu solicitud.</li>
+      <li>Si podemos ayudarte, te contactamos por el medio que elegiste.</li>
+    </ol>
+    <p>Mientras tanto, si tu mascota empeora o tiene síntomas graves, buscá atención veterinaria inmediata.</p>
+  </Fragment>
+</FormShell>
+
+<script>
+  import { initOwnerForm } from './owner-form';
+  const card = document.getElementById('formulario-propietarios');
+  if (card) initOwnerForm(card);
+</script>

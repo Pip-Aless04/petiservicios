@@ -1,0 +1,159 @@
+---
+import Icon from './Icon.astro';
+
+const links = [
+  { href: '/#como-funciona', label: 'Cómo funciona' },
+  { href: '/#para-propietarios', label: 'Para propietarios' },
+  { href: '/#para-veterinarias', label: 'Para veterinarias' },
+  { href: '/#preguntas', label: 'Preguntas frecuentes' },
+];
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" href="/" aria-label="Peti, inicio">
+      <img src="/images/peti-logo-640.png" alt="Peti" width="640" height="233" />
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+      data-menu-toggle
+    >
+      <span class="visually-hidden">Menú</span>
+      <span data-icon-open><Icon name="menu" size={26} /></span>
+      <span data-icon-close hidden><Icon name="close" size={26} /></span>
+    </button>
+
+    <nav class="menu" id="menu-principal" aria-label="Principal" data-menu>
+      <ul>
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+      <a class="btn btn-primary" href="/#para-propietarios" data-track="cta_owner_click" data-track-location="header">
+        Necesito ayuda
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(247 244 238 / 92%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 4.25rem;
+    gap: 1rem;
+  }
+  .brand img {
+    height: 2.6rem;
+    width: auto;
+  }
+  .menu-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid var(--navy-700);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--navy-700);
+    cursor: pointer;
+  }
+  .menu {
+    position: absolute;
+    inset: 100% 0 auto 0;
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem var(--gutter) 1.5rem;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-m);
+  }
+  .menu.open {
+    display: flex;
+  }
+  .menu ul {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .menu li a {
+    display: block;
+    padding: 0.7rem 0.25rem;
+    color: var(--navy-700);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .menu li a:hover {
+    color: var(--green-700);
+    text-decoration: underline;
+  }
+
+  @media (min-width: 62rem) {
+    .menu-toggle {
+      display: none;
+    }
+    .menu {
+      position: static;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0;
+      background: none;
+      border: 0;
+      box-shadow: none;
+    }
+    .menu ul {
+      display: flex;
+      gap: 1.25rem;
+    }
+    .menu li a {
+      padding: 0.4rem 0;
+      font-size: 0.97rem;
+    }
+    .menu .btn {
+      min-height: 2.7rem;
+      padding: 0.45rem 1.2rem;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const iconOpen = document.querySelector<HTMLElement>('[data-icon-open]');
+  const iconClose = document.querySelector<HTMLElement>('[data-icon-close]');
+
+  function setOpen(open: boolean) {
+    if (!toggle || !menu || !iconOpen || !iconClose) return;
+    menu.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    iconOpen.hidden = open;
+    iconClose.hidden = !open;
+  }
+
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+</script>
