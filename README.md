@@ -50,8 +50,9 @@ Ambos formularios usan la misma URL; el campo `metadata.formType` (`owner_reques
 Para ver los otros estados:
 
 - **Sin URL configurada:** dejá la variable vacía y enviá; aparece el aviso de configuración.
-- **Error de red / HTTP / timeout:** apuntá la URL a un destino caído o que responda con error; se muestra un mensaje claro y los datos escritos se conservan para reintentar. El timeout es de 30 segundos (`REQUEST_TIMEOUT_MS`).
-- **Validación:** dejá campos obligatorios vacíos, un correo o teléfono inválido, o adjuntá un archivo no permitido o mayor a 5 MB.
+- **Error de red / HTTP / timeout:** apuntá la URL a un destino caído o que responda con error; se muestra un mensaje claro y los datos escritos se conservan para reintentar. El timeout es de 60 segundos (`REQUEST_TIMEOUT_MS`), pensado para envíos con archivos.
+- **Validación:** dejá campos obligatorios vacíos, un correo o teléfono inválido, o adjuntá un archivo no permitido, de más de 5 MB, más de 3 archivos en un campo, o más de 12 MB entre todos los adjuntos.
+- **Ubicación:** en el paso de ubicación, tocá _Usar mi ubicación actual_ y aceptá el permiso del navegador (necesita `localhost` o HTTPS). Si lo negás, el formulario sigue funcionando y solo se omiten las coordenadas.
 
 ## Estructura del frontend
 
@@ -62,13 +63,14 @@ src/
     TrustSection.astro  FAQ.astro  Footer.astro  Icon.astro
     OwnerForm/        # formulario multi-step de propietarios (+ esquema y payload)
     VeterinaryForm/   # formulario multi-step de veterinarias (+ esquema y payload)
-    form/             # piezas reutilizables: Field, Choice, Step, FormShell, Consent
+    form/             # piezas reutilizables: Field, Choice, Step, FormShell, Consent, LocationPicker
   layouts/Layout.astro    # <head>, SEO, Open Graph, header y footer
   lib/
     api.ts          # submitForm / submitOwnerForm / submitVeterinaryForm (fetch POST)
     multistep.ts    # motor del formulario por pasos (progreso, validación, estados)
     validation.ts   # validadores (correo, teléfono, URL, archivos, fechas…)
     payload.ts      # armado del payload y lectura de archivos a base64
+    geolocation.ts  # botón opcional «Usar mi ubicación actual» (solo navegador)
     analytics.ts    # eventos de frontend (sin plataforma conectada)
     constants.ts    # textos, opciones de los formularios y límites
   types/            # interfaces TypeScript (solo frontend)
@@ -92,30 +94,47 @@ Siempre `POST` con `Content-Type: application/json`. Los campos opcionales vací
   "owner": {
     "firstName": "Ana", "lastName": "Mora", "phone": "8888 8888",
     "email": "ana@correo.com",                 // opcional (obligatorio si prefiere contacto por correo)
-    "preferredContact": "whatsapp",            // whatsapp | llamada | correo
-    "province": "San José", "canton": "Escazú", "district": "San Rafael"  // district opcional
+    "preferredContact": "whatsapp"             // whatsapp | llamada | correo
+  },
+  "location": {
+    "province": "San José", "canton": "Escazú",
+    "district": "San Rafael",                  // opcional
+    "address": "200 m sur de la iglesia",      // opcional (señas)
+    "googleMapsUrl": "https://maps.app.goo.gl/…",  // opcional (Google Maps o Waze)
+    "coordinates": { "latitude": 9.91797, "longitude": -84.14012, "accuracyMeters": 25 }
+                                               // solo si tocó «Usar mi ubicación actual»
   },
   "pet": {
     "name": "Luna", "species": "perro",        // perro | gato | ave | reptil | roedor | pez | otra
     "speciesOther": "…",                       // solo si species = "otra"
+    "breed": "Labrador",                       // opcional
     "approximateAge": "3 años",
     "sex": "hembra",                           // macho | hembra | no_seguro | prefiero_no_indicar
-    "weightKg": 12.5                           // opcional
+    "weightKg": 12.5,                          // opcional
+    "sterilized": "si",                        // opcional: si | no | no_se
+    "vaccinesUpToDate": "no_se"                // opcional: si | no | no_se
   },
   "request": {
     "needs": ["cirugia", "radiografia"],       // selección múltiple
     "needsOther": "…",                         // solo si incluye "otro"
-    "description": "Texto libre",
-    "urgency": "esta_semana"                   // hoy | 24_horas | esta_semana | proximas_semanas | averiguando
+    "procedure": "Cirugía de rodilla",         // qué procedimiento o servicio quiere cotizar (obligatorio)
+    "description": "Texto libre",              // opcional
+    "urgency": "esta_semana",                  // hoy | 24_horas | esta_semana | proximas_semanas | averiguando
+    "additionalNotes": "…"                     // opcional
+  },
+  "health": {                                  // todo opcional; el bloque siempre existe
+    "diagnosis": "…", "conditions": "…",
+    "documents": [ { "name": "rx.jpg", "mimeType": "image/jpeg", "sizeBytes": 123456, "contentBase64": "…" } ]
   },
   "quote": {
     "hasQuote": "si",                          // si | no | no_seguro
     // Lo siguiente solo existe si hasQuote = "si" (todo opcional):
-    "file": { "name": "cotizacion.pdf", "mimeType": "application/pdf", "sizeBytes": 123456, "contentBase64": "…" },
+    "files": [ { "name": "cotizacion.pdf", "mimeType": "application/pdf", "sizeBytes": 123456, "contentBase64": "…" } ],
     "totalAmount": 350000, "currency": "CRC",  // CRC | USD (la moneda solo viaja si hay monto)
     "procedure": "…", "includes": "…", "excludes": "…",
     "unsureWhatIncludes": true,
-    "approximateDate": "2026-10-01", "clinicName": "…"
+    "approximateDate": "2026-10-01", "clinicName": "…",
+    "lookingBecause": ["cara", "segunda_opinion"]  // cara | segunda_opinion | no_entiendo | comparar
   },
   "preferences": {
     "budgetRange": "100k_250k",                // opcional (menos_50k … mas_1m | sin_definir)
@@ -125,13 +144,17 @@ Siempre `POST` con `Content-Type: application/json`. Los campos opcionales vací
   },
   "metadata": {
     "formType": "owner_request",
-    "timestamp": "2026-10-08T18:30:00.000Z",
+    "timestamp": "2026-10-09T18:30:00.000Z",
     "source": "peti-landing",
-    "formVersion": "1.0.0",
+    "formVersion": "1.1.0",
     "privacyAccepted": true
   }
 }
 ```
+
+**Archivos adjuntos.** Viajan dentro del JSON en base64 (`contentBase64`, sin el prefijo `data:`): PDF, JPG, JPEG, PNG o WEBP; máximo 5 MB por archivo, 3 archivos por campo (`quote.files` y `health.documents`) y 12 MB entre todos. Como el base64 pesa cerca de un tercio más, el servidor que reciba el POST debe aceptar cuerpos de unos 16 MB. Los límites se cambian en `ATTACHMENT` (`src/lib/constants.ts`).
+
+**Cambios de la versión 1.1.0** respecto de la 1.0.0 (por si ya hay un receptor armado): `location` pasó a ser un bloque propio (antes `province`, `canton` y `district` estaban dentro de `owner`); `request.procedure` es nuevo y `request.description` ahora es opcional; `quote.file` pasó a ser `quote.files` (lista); y se agregaron `health`, `pet.breed`, `pet.sterilized`, `pet.vaccinesUpToDate`, `quote.lookingBecause` y `request.additionalNotes`.
 
 ### Veterinaria (`metadata.formType = "veterinary_registration"`)
 
@@ -139,7 +162,10 @@ Siempre `POST` con `Content-Type: application/json`. Los campos opcionales vací
 {
   "contact": { "contactPerson": "…", "role": "…", "phone": "2222 2222", "whatsapp": "…", "email": "clinica@correo.com" },
   "clinic": { "name": "…", "tradeName": "…", "website": "https://…", "instagram": "@…", "facebook": "…", "googleMapsUrl": "https://…" },
-  "location": { "province": "…", "canton": "…", "district": "…", "address": "…" },
+  "location": {
+    "province": "…", "canton": "…", "district": "…", "address": "…",
+    "coordinates": { "latitude": 9.93, "longitude": -84.08, "accuracyMeters": 20 }  // solo si usó «Usar mi ubicación actual»
+  },
   "services": {
     "offered": ["cirugia", "radiografia"], "offeredOther": "…",
     "species": ["perros", "gatos"], "speciesOther": "…"
@@ -157,7 +183,7 @@ Siempre `POST` con `Content-Type: application/json`. Los campos opcionales vací
     "responseTime": "2_6_h",
     "preferredBusinessModel": "…"              // solo investigación; el modelo comercial no está definido
   },
-  "metadata": { "formType": "veterinary_registration", "timestamp": "…", "source": "peti-landing", "formVersion": "1.0.0", "privacyAccepted": true }
+  "metadata": { "formType": "veterinary_registration", "timestamp": "…", "source": "peti-landing", "formVersion": "1.1.0", "privacyAccepted": true }
 }
 ```
 

@@ -24,16 +24,23 @@ export const SITE = {
 // --- Envío de formularios -------------------------------------------------
 
 export const FORM_SOURCE = 'peti-landing';
-export const FORM_VERSION = '1.0.0';
-export const REQUEST_TIMEOUT_MS = 30_000;
+/** 1.1.0: el propietario envía `location` (antes en `owner`), `health` y archivos múltiples. */
+export const FORM_VERSION = '1.1.0';
+export const REQUEST_TIMEOUT_MS = 60_000;
 
-// --- Archivos adjuntos (cotización) --------------------------------------
+// --- Archivos adjuntos (cotizaciones y documentos de salud) --------------------
 
-export const QUOTE_FILE = {
+export const ATTACHMENT = {
   extensions: ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
   mimeTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
+  /** Tamaño máximo por archivo. */
   maxBytes: 5 * 1024 * 1024,
   maxLabel: '5 MB',
+  /** Cantidad máxima de archivos por campo. */
+  maxFiles: 3,
+  /** Tope entre todos los archivos del formulario (viajan en base64 dentro del JSON). */
+  maxTotalBytes: 12 * 1024 * 1024,
+  maxTotalLabel: '12 MB',
 } as const;
 
 // --- Opciones compartidas -------------------------------------------------
@@ -105,6 +112,19 @@ export const HAS_QUOTE: Option[] = [
   { value: 'si', label: 'Sí' },
   { value: 'no', label: 'No' },
   { value: 'no_seguro', label: 'No estoy seguro/a' },
+];
+
+export const YES_NO_UNSURE: Option[] = [
+  { value: 'si', label: 'Sí' },
+  { value: 'no', label: 'No' },
+  { value: 'no_se', label: 'No sé' },
+];
+
+export const QUOTE_REASONS: Option[] = [
+  { value: 'cara', label: 'Me parece cara' },
+  { value: 'segunda_opinion', label: 'Quiero una segunda opinión' },
+  { value: 'no_entiendo', label: 'No entiendo qué incluye' },
+  { value: 'comparar', label: 'Quiero comparar opciones' },
 ];
 
 export const CURRENCIES: Option[] = [

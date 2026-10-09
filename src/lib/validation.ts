@@ -3,9 +3,10 @@
  * cada regla devuelve un mensaje de error o `null` si el valor es válido.
  * Los campos vacíos que no son obligatorios nunca producen error (no bloqueamos de más).
  */
-import { QUOTE_FILE } from './constants';
+import { ATTACHMENT } from './constants';
 
-export type FieldValue = string | string[] | File | null;
+/** Un campo de texto/opción, una selección múltiple (string[]), o archivos (File / File[]). */
+export type FieldValue = string | string[] | File | File[] | null;
 export type Values = Record<string, FieldValue>;
 export type Rule = (value: FieldValue, all: Values) => string | null;
 export type Schema = Record<string, Rule[]>;
@@ -147,26 +148,50 @@ function extensionOf(name: string): string {
   return dot === -1 ? '' : name.slice(dot + 1).toLowerCase();
 }
 
-/** Valida extensión, tipo MIME y tamaño de la cotización adjunta. */
-export function validateQuoteFile(file: File): string | null {
+/** Archivos que trae un valor (uno, varios o ninguno). */
+export function filesOf(value: FieldValue | undefined): File[] {
+  if (value instanceof File) return [value];
+  return Array.isArray(value) ? value.filter((v): v is File => v instanceof File) : [];
+}
+
+/** Valida extensión, tipo MIME y tamaño de un archivo adjunto. */
+export function validateAttachment(file: File): string | null {
   const ext = extensionOf(file.name);
-  const allowed = QUOTE_FILE.extensions.join(', ').toUpperCase();
-  if (!(QUOTE_FILE.extensions as readonly string[]).includes(ext)) {
-    return `El archivo debe ser ${allowed}.`;
+  const allowed = ATTACHMENT.extensions.join(', ').toUpperCase();
+  const label = `"${file.name}"`;
+  if (!(ATTACHMENT.extensions as readonly string[]).includes(ext)) {
+    return `${label} no es un formato permitido. Usá ${allowed}.`;
   }
   // Algunos navegadores no informan el MIME; si lo informan, tiene que coincidir.
-  if (file.type && !(QUOTE_FILE.mimeTypes as readonly string[]).includes(file.type)) {
-    return `Ese tipo de archivo no es válido. Usá ${allowed}.`;
+  if (file.type && !(ATTACHMENT.mimeTypes as readonly string[]).includes(file.type)) {
+    return `${label} no es un tipo de archivo válido. Usá ${allowed}.`;
   }
-  if (file.size === 0) return 'El archivo está vacío.';
-  if (file.size > QUOTE_FILE.maxBytes) {
-    return `El archivo supera el máximo de ${QUOTE_FILE.maxLabel}.`;
+  if (file.size === 0) return `${label} está vacío.`;
+  if (file.size > ATTACHMENT.maxBytes) {
+    return `${label} supera el máximo de ${ATTACHMENT.maxLabel} por archivo.`;
   }
   return null;
 }
 
-export const validFile = (): Rule => (value) =>
-  value instanceof File ? validateQuoteFile(value) : null;
+/**
+ * Valida los archivos de un campo: cantidad, formato y tamaño de cada uno, y que entre todos los
+ * adjuntos del formulario no pasen del tope total (viajan dentro del JSON).
+ */
+export const validFiles =
+  (maxFiles: number = ATTACHMENT.maxFiles): Rule =>
+  (value, all) => {
+    const files = filesOf(value);
+    if (files.length === 0) return null;
+    if (files.length > maxFiles) return `Podés adjuntar hasta ${maxFiles} archivos.`;
+    for (const file of files) {
+      const error = validateAttachment(file);
+      if (error) return error;
+    }
+    const total = Object.values(all).reduce((sum, v) => sum + filesOf(v).reduce((s, f) => s + f.size, 0), 0);
+    return total > ATTACHMENT.maxTotalBytes
+      ? `Entre todos los archivos no pueden superar ${ATTACHMENT.maxTotalLabel}.`
+      : null;
+  };
 
 // --- Ejecución -------------------------------------------------------------
 

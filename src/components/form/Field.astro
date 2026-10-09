@@ -4,7 +4,7 @@
  * El motor multi-paso (lib/multistep.ts) rellena `[data-error]` y marca `aria-invalid`.
  */
 import type { Option } from '../../lib/constants';
-import { QUOTE_FILE } from '../../lib/constants';
+import { ATTACHMENT } from '../../lib/constants';
 
 interface Props {
   /** Prefijo de ids únicos por formulario, p. ej. "owner". */
@@ -24,6 +24,8 @@ interface Props {
   maxlength?: number;
   rows?: number;
   max?: string;
+  /** Solo para kind="file": permite agregar varios archivos (hasta ATTACHMENT.maxFiles). */
+  multiple?: boolean;
   /** Muestra el campo solo cuando se cumple, p. ej. "species=otra". */
   showWhen?: string;
 }
@@ -45,14 +47,17 @@ const {
   maxlength,
   rows = 4,
   max,
+  multiple = false,
   showWhen,
 } = Astro.props;
 
 const id = `${prefix}-${name}`;
 const hintId = hint || kind === 'file' ? `${id}-hint` : undefined;
 const describedBy = [hintId, `${id}-error`].filter(Boolean).join(' ');
-const accept = QUOTE_FILE.extensions.map((e) => `.${e}`).join(',');
-const fileHint = `Formatos: PDF, JPG, PNG o WEBP. Máximo ${QUOTE_FILE.maxLabel}.`;
+const accept = ATTACHMENT.extensions.map((e) => `.${e}`).join(',');
+const fileHint = multiple
+  ? `Formatos: PDF, JPG, PNG o WEBP. Hasta ${ATTACHMENT.maxFiles} archivos de ${ATTACHMENT.maxLabel} cada uno; podés agregarlos de a uno.`
+  : `Formatos: PDF, JPG, PNG o WEBP. Máximo ${ATTACHMENT.maxLabel}.`;
 ---
 
 <div class="field" data-field={name} data-show-when={showWhen} hidden={showWhen ? true : undefined}>
@@ -93,6 +98,7 @@ const fileHint = `Formatos: PDF, JPG, PNG o WEBP. Máximo ${QUOTE_FILE.maxLabel}
         name={name}
         type="file"
         accept={accept}
+        multiple={multiple}
         aria-describedby={describedBy}
       />
     ) : (
@@ -111,16 +117,7 @@ const fileHint = `Formatos: PDF, JPG, PNG o WEBP. Máximo ${QUOTE_FILE.maxLabel}
     )
   }
 
-  {
-    kind === 'file' && (
-      <div class="file-status" aria-live="polite">
-        <span data-file-name />
-        <button type="button" class="btn btn-ghost" data-file-clear hidden>
-          Quitar archivo
-        </button>
-      </div>
-    )
-  }
+  {kind === 'file' && <ul class="file-list" data-file-list aria-live="polite" />}
   {(hint || kind === 'file') && <p class="field-hint" id={hintId}>{hint ?? fileHint}</p>}
   <p class="field-error" id={`${id}-error`} data-error role="alert" hidden></p>
 </div>

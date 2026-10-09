@@ -1,0 +1,35 @@
+---
+/**
+ * Botón opcional "Usar mi ubicación actual". Guarda la ubicación en campos ocultos
+ * (geoLat, geoLng, geoAccuracy); la lógica está en lib/geolocation.ts.
+ * Solo se pide el permiso al navegador cuando la persona toca el botón.
+ */
+interface Props {
+  prefix: string;
+  label?: string;
+  hint?: string;
+}
+const {
+  prefix,
+  label = 'Compartí tu ubicación exacta',
+  hint = 'Opcional. Si querés, usá tu ubicación actual para que busquemos clínicas realmente cerca. La usamos solo para eso y podés quitarla cuando quieras.',
+} = Astro.props;
+const id = `${prefix}-geo`;
+---
+
+<div class="field location-picker" data-field="geo" data-location-picker>
+  <span class="field-label" id={`${id}-label`}>
+    {label} <span class="optional">(opcional)</span>
+  </span>
+  <p class="field-hint" id={`${id}-hint`}>{hint}</p>
+  <div class="geo-actions" role="group" aria-labelledby={`${id}-label`}>
+    <button type="button" class="btn btn-secondary" data-geo-request aria-describedby={`${id}-hint ${id}-status`}>
+      Usar mi ubicación actual
+    </button>
+    <button type="button" class="btn btn-ghost" data-geo-clear hidden>Quitar ubicación</button>
+  </div>
+  <p class="geo-status" id={`${id}-status`} data-geo-status aria-live="polite"></p>
+  <input type="hidden" name="geoLat" />
+  <input type="hidden" name="geoLng" />
+  <input type="hidden" name="geoAccuracy" />
+</div>
