@@ -1,0 +1,135 @@
+---
+import Icon from './Icon.astro';
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container grid">
+    <div class="copy">
+      <span class="eyebrow">Para dueños de mascotas en Costa Rica</span>
+      <h1 id="hero-title">
+        Tomá mejores decisiones para <span class="accent">la salud de tu mascota.</span>
+      </h1>
+      <p class="lead">
+        Compará opciones veterinarias, entendé qué incluye cada cotización y encontrá alternativas
+        cuando tu mascota necesite un procedimiento.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#para-propietarios" data-track="cta_owner_click" data-track-location="hero">
+          Necesito ayuda
+          <Icon name="arrow" size={20} />
+        </a>
+        <a class="btn btn-secondary" href="#para-veterinarias" data-track="cta_vet_click" data-track-location="hero">
+          Soy veterinaria
+        </a>
+      </div>
+      <p class="reassure">
+        Peti no diagnostica ni recomienda tratamientos: te ayuda a entender y comparar para que
+        decidas con más información.
+      </p>
+    </div>
+
+    <figure class="visual">
+      <img
+        src="/images/hero-pets.webp"
+        alt="Un perro golden retriever y un gato atigrado, juntos y contentos."
+        width="1103"
+        height="793"
+        fetchpriority="high"
+      />
+      <figcaption class="badge">
+        <Icon name="heart" size={18} />
+        Más opciones, mejores decisiones
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2rem, 6vw, 4.5rem) clamp(3rem, 8vw, 5.5rem);
+    background:
+      radial-gradient(60rem 30rem at 85% -10%, var(--mint-200), transparent 60%),
+      var(--cream);
+  }
+  .grid {
+    display: grid;
+    gap: 2.25rem;
+    align-items: center;
+  }
+  .copy {
+    display: grid;
+    gap: 1.4rem;
+    justify-items: start;
+  }
+  .accent {
+    color: var(--green-700);
+  }
+  .lead {
+    max-width: 38rem;
+    font-size: clamp(1.1rem, 2.6vw, 1.3rem);
+    color: var(--muted);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    width: 100%;
+  }
+  .actions .btn {
+    flex: 1 1 14rem;
+  }
+  .reassure {
+    max-width: 36rem;
+    font-size: 0.97rem;
+    color: var(--muted);
+  }
+  .visual {
+    position: relative;
+    margin: 0;
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    box-shadow: var(--shadow-m);
+    background: var(--mint-100);
+  }
+  .visual img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .badge {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 94%);
+    color: var(--navy-700);
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: var(--shadow-s);
+  }
+  .badge :global(svg) {
+    color: var(--green-500);
+  }
+
+  @media (min-width: 56rem) {
+    .grid {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 3rem;
+    }
+    .actions .btn {
+      flex: 0 0 auto;
+    }
+    .visual img {
+      /* Encuadre algo más ancho y desplazado a la derecha: deja completos el corazón y los destellos. */
+      aspect-ratio: 11 / 10;
+      object-position: 70% 50%;
+    }
+  }
+</style>

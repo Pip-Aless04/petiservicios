@@ -1,0 +1,193 @@
+---
+import Field from '../form/Field.astro';
+import Choice from '../form/Choice.astro';
+import Consent from '../form/Consent.astro';
+import FormShell from '../form/FormShell.astro';
+import Step from '../form/Step.astro';
+import Icon from '../Icon.astro';
+import {
+  PROVINCES,
+  VET_BUSINESS_MODEL,
+  VET_CAPABILITIES,
+  VET_INTEREST,
+  VET_PREPARES_QUOTES,
+  VET_QUOTE_CHANNELS,
+  VET_QUOTE_CONTENTS,
+  VET_REQUEST_TYPES,
+  VET_RESPONSE_TIME,
+  VET_SERVICES,
+  VET_SPECIES,
+  YES_NO,
+} from '../../lib/constants';
+
+const p = 'vet';
+const titles = [
+  'Clínica y contacto',
+  'Ubicación y presencia en línea',
+  'Servicios y especies',
+  'Capacidad',
+  'Interés en solicitudes',
+  'Cotizaciones y tiempos',
+];
+---
+
+<FormShell
+  id="formulario-veterinarias"
+  formType="veterinary_registration"
+  stepCount={titles.length}
+  firstStepTitle={titles[0]!}
+  submitLabel="Enviar registro"
+  label="Registro de veterinarias interesadas en colaborar"
+>
+  <Step prefix={p} index={0} title={titles[0]!}>
+    <Field prefix={p} name="clinicName" label="Nombre de la clínica" required autocomplete="organization" maxlength={120} />
+    <Field prefix={p} name="tradeName" label="Nombre comercial" maxlength={120} />
+    <div class="field-row cols-2">
+      <Field prefix={p} name="contactPerson" label="Persona de contacto" required autocomplete="name" maxlength={100} />
+      <Field prefix={p} name="role" label="Cargo" autocomplete="organization-title" maxlength={80} />
+    </div>
+    <div class="field-row cols-2">
+      <Field prefix={p} name="phone" label="Teléfono" type="tel" inputmode="tel" autocomplete="tel" placeholder="2222 2222" required />
+      <Field prefix={p} name="whatsapp" label="WhatsApp" type="tel" inputmode="tel" placeholder="8888 8888" />
+    </div>
+    <Field prefix={p} name="email" label="Correo electrónico" type="email" inputmode="email" autocomplete="email" required maxlength={120} />
+  </Step>
+
+  <Step prefix={p} index={1} title={titles[1]!} intro="Los enlaces son opcionales; ayudan a conocer mejor la clínica.">
+    <Field prefix={p} name="province" label="Provincia" kind="select" options={PROVINCES} required autocomplete="address-level1" />
+    <div class="field-row cols-2">
+      <Field prefix={p} name="canton" label="Cantón" required maxlength={60} />
+      <Field prefix={p} name="district" label="Distrito" maxlength={60} />
+    </div>
+    <Field prefix={p} name="address" label="Dirección" required autocomplete="street-address" maxlength={200} />
+    <Field prefix={p} name="website" label="Sitio web" inputmode="url" placeholder="https://tuclinica.cr" maxlength={200} />
+    <div class="field-row cols-2">
+      <Field prefix={p} name="instagram" label="Instagram" placeholder="@tuclinica" maxlength={200} />
+      <Field prefix={p} name="facebook" label="Facebook" placeholder="facebook.com/tuclinica" maxlength={200} />
+    </div>
+    <Field prefix={p} name="googleMapsUrl" label="Enlace de Google Maps" inputmode="url" placeholder="https://maps.app.goo.gl/…" maxlength={300} />
+  </Step>
+
+  <Step prefix={p} index={2} title={titles[2]!}>
+    <Choice
+      prefix={p}
+      name="services"
+      legend="¿Qué servicios ofrecen?"
+      hint="Podés elegir más de una opción."
+      type="checkbox"
+      options={VET_SERVICES}
+      required
+      compact
+      wide
+    />
+    <Field prefix={p} name="servicesOther" label="¿Qué otros servicios ofrecen?" required maxlength={150} showWhen="services=otro" />
+    <Choice
+      prefix={p}
+      name="species"
+      legend="¿Qué especies atienden?"
+      type="checkbox"
+      options={VET_SPECIES}
+      required
+      compact
+      wide
+    />
+    <Field prefix={p} name="speciesOther" label="¿Qué otras especies atienden?" required maxlength={150} showWhen="species=otros" />
+  </Step>
+
+  <Step prefix={p} index={3} title={titles[3]!} intro="Respuestas rápidas: nos ayudan a saber qué tipo de solicitudes podrían atender.">
+    {VET_CAPABILITIES.map((q) => <Choice prefix={p} name={q.name} legend={q.label} options={YES_NO} inline />)}
+  </Step>
+
+  <Step prefix={p} index={4} title={titles[4]!}>
+    <Choice
+      prefix={p}
+      name="interestedInRequests"
+      legend="¿Estarían interesados en recibir solicitudes de propietarios que estén buscando opciones para procedimientos específicos?"
+      options={VET_INTEREST}
+      required
+      compact
+    />
+    <Choice
+      prefix={p}
+      name="requestTypes"
+      legend="¿Qué tipo de solicitudes les interesaría recibir?"
+      hint="Podés elegir más de una opción."
+      type="checkbox"
+      options={VET_REQUEST_TYPES}
+      compact
+      wide
+      showWhen="interestedInRequests=si|probablemente|conocer_mas"
+    />
+    <Field prefix={p} name="requestTypesOther" label="¿Qué otras solicitudes les interesan?" required maxlength={150} showWhen="requestTypes=otros" />
+    <div class="subsection">
+      <h4>Pregunta solo de investigación</h4>
+      <p class="field-hint">
+        Peti no cobra ni define todavía ningún modelo comercial. Esta pregunta nos sirve únicamente
+        para investigar qué les parecería razonable más adelante; responder no genera ningún compromiso.
+      </p>
+      <Choice
+        prefix={p}
+        name="preferredBusinessModel"
+        legend="Si Peti demostrara que genera clientes interesados en realizar procedimientos en su clínica, ¿qué modelo les parecería más razonable?"
+        options={VET_BUSINESS_MODEL}
+      />
+    </div>
+  </Step>
+
+  <Step prefix={p} index={5} title={titles[5]!}>
+    <Choice
+      prefix={p}
+      name="preparesQuotes"
+      legend="¿Actualmente preparan cotizaciones para procedimientos?"
+      options={VET_PREPARES_QUOTES}
+      inline
+    />
+    <Choice
+      prefix={p}
+      name="quoteChannels"
+      legend="¿Por qué medio suelen enviarlas?"
+      type="checkbox"
+      options={VET_QUOTE_CHANNELS}
+      compact
+      wide
+      showWhen="preparesQuotes=si|algunas_veces"
+    />
+    <Field prefix={p} name="quoteChannelsOther" label="¿Por qué otro medio las envían?" required maxlength={150} showWhen="quoteChannels=otro" />
+    <Choice
+      prefix={p}
+      name="quoteContents"
+      legend="¿Qué información suelen incluir?"
+      type="checkbox"
+      options={VET_QUOTE_CONTENTS}
+      compact
+      wide
+      showWhen="preparesQuotes=si|algunas_veces"
+    />
+    <Field prefix={p} name="quoteContentsOther" label="¿Qué otra información incluyen?" required maxlength={150} showWhen="quoteContents=otros" />
+    <Field
+      prefix={p}
+      name="responseTime"
+      label="Cuando un cliente solicita una cotización, ¿aproximadamente cuánto tardan en responder?"
+      kind="select"
+      options={VET_RESPONSE_TIME}
+    />
+    <Consent prefix={p} />
+  </Step>
+
+  <Fragment slot="success">
+    <span class="success-icon"><Icon name="check" size={28} /></span>
+    <h3>¡Gracias! Recibimos tu solicitud.</h3>
+    <p>Revisaremos la información y nos pondremos en contacto con vos si podemos ayudarte.</p>
+    <ol class="next-steps">
+      <li>Revisamos los datos de tu clínica y los servicios que ofrecen.</li>
+      <li>Si hay una coincidencia con solicitudes de propietarios, te contactamos para conversar.</li>
+      <li>El registro no implica ningún compromiso ni ningún cobro.</li>
+    </ol>
+  </Fragment>
+</FormShell>
+
+<script>
+  import { initVeterinaryForm } from './veterinary-form';
+  const card = document.getElementById('formulario-veterinarias');
+  if (card) initVeterinaryForm(card);
+</script>

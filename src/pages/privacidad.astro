@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE } from '../lib/constants';
+---
+
+<Layout
+  title="Política de privacidad | Peti"
+  description="Qué información recopilan los formularios de Peti y para qué se utiliza."
+  path="/privacidad"
+>
+  <section class="section">
+    <div class="container prose">
+      <h1>Política de privacidad</h1>
+      <p class="updated">Versión inicial. Peti está en etapa de validación y esta política puede actualizarse.</p>
+
+      <h2>Qué es Peti</h2>
+      <p>
+        Peti es un servicio de información y conexión entre propietarios de mascotas y
+        establecimientos veterinarios en Costa Rica. No es una veterinaria ni ofrece diagnóstico o
+        tratamiento.
+      </p>
+
+      <h2>Qué información recopilamos</h2>
+      <p>Solo lo que vos nos das al completar alguno de los dos formularios:</p>
+      <h3>Si sos propietario/a</h3>
+      <ul>
+        <li>Tus datos de contacto: nombre, apellido, teléfono o WhatsApp, correo (si lo indicás) y cómo preferís que te contactemos.</li>
+        <li>Tu ubicación aproximada: provincia, cantón y distrito, y hasta dónde estarías dispuesto/a a trasladarte.</li>
+        <li>Datos básicos de tu mascota: nombre, especie, edad aproximada, sexo y peso (opcional).</li>
+        <li>Qué necesita tu mascota, una breve descripción, qué tan pronto lo necesitás y tu presupuesto aproximado (opcional).</li>
+        <li>Si tenés una cotización: el archivo que adjuntes (PDF o imagen) y los datos que escribas sobre ella.</li>
+        <li>Los factores que te importan al elegir una veterinaria.</li>
+      </ul>
+      <h3>Si representás una clínica</h3>
+      <ul>
+        <li>Datos de la clínica y de la persona de contacto: nombre, cargo, teléfono, WhatsApp, correo, dirección y enlaces públicos.</li>
+        <li>Servicios y especies que atienden, y capacidades de la clínica.</li>
+        <li>Tu interés en recibir solicitudes, cómo preparan cotizaciones y tiempos de respuesta.</li>
+        <li>Tu opinión sobre posibles modelos comerciales (solo con fines de investigación).</li>
+      </ul>
+      <p>
+        Además, el envío incluye datos técnicos mínimos: la fecha y hora del envío, el origen del
+        formulario, la versión del formulario y si aceptaste esta política.
+      </p>
+      <p>
+        Te pedimos no incluir información que no sea necesaria. No necesitamos tu cédula, datos de
+        tarjetas ni historiales médicos completos.
+      </p>
+
+      <h2>Para qué la usamos</h2>
+      <ul>
+        <li>Entender tu solicitud y, si podemos ayudarte, buscar opciones veterinarias compatibles.</li>
+        <li>Contactarte por el medio que elegiste.</li>
+        <li>En el caso de las clínicas, evaluar una posible colaboración y conversar con ustedes.</li>
+        <li>Conocer mejor las necesidades de propietarios y veterinarias para mejorar el servicio.</li>
+      </ul>
+
+      <h2>Con quién se comparte</h2>
+      <p>
+        Si te ayudamos a buscar opciones, podríamos compartir con las veterinarias la información
+        necesaria sobre la necesidad de tu mascota para que puedan responder. No vendemos tu
+        información.
+      </p>
+
+      <h2>Cómo se envía</h2>
+      <p>
+        Este sitio no guarda tus datos en tu navegador. Al enviar un formulario, la información
+        viaja directamente a un servicio de recepción configurado por Peti. Los formularios no
+        incluyen ninguna plataforma de analítica o publicidad de terceros por ahora.
+      </p>
+
+      <h2>Tus derechos</h2>
+      <p>
+        Podés pedirnos acceso, corrección o eliminación de tus datos en cualquier momento. Para
+        hacerlo, escribinos por
+        {
+          SITE.contact.email ? (
+            <>
+              {' '}
+              <a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a>
+            </>
+          ) : (
+            ' el medio de contacto indicado en el pie de página'
+          )
+        }.
+      </p>
+
+      <h2>Cambios en esta política</h2>
+      <p>
+        Si cambiamos la forma en que usamos la información, actualizaremos esta página. Te
+        recomendamos revisarla de vez en cuando.
+      </p>
+
+      <p><a href="/">← Volver al inicio</a></p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .prose {
+    max-width: 46rem;
+  }
+  .prose :global(h1) {
+    margin-bottom: 0.5rem;
+  }
+  .updated {
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+  .prose h2 {
+    margin-top: 2.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+  }
+  .prose h3 {
+    margin-block: 1.25rem 0.5rem;
+    font-size: 1.1rem;
+  }
+  .prose ul {
+    display: grid;
+    gap: 0.4rem;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0 1rem;
+  }
+  .prose p + p {
+    margin-top: 0.9rem;
+  }
+</style>

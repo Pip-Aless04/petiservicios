@@ -1,0 +1,18 @@
+---
+/** Casilla de aceptación de la política de privacidad (obligatoria para enviar). */
+interface Props {
+  prefix: string;
+}
+const { prefix } = Astro.props;
+const id = `${prefix}-acceptPrivacy`;
+---
+
+<div class="choice-group" data-field="acceptPrivacy">
+  <label class="choice" for={id}>
+    <input id={id} type="checkbox" name="acceptPrivacy" value="si" aria-describedby={`${id}-error`} />
+    <span>
+      Leí y acepto la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a>.
+    </span>
+  </label>
+  <p class="field-error" id={`${id}-error`} data-error role="alert" hidden></p>
+</div>

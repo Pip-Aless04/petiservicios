@@ -1,0 +1,72 @@
+---
+/** Grupo de opciones (radio o casillas múltiples) con legend real y error enlazado. */
+import type { Option } from '../../lib/constants';
+
+interface Props {
+  prefix: string;
+  name: string;
+  legend: string;
+  options: Option[];
+  type?: 'radio' | 'checkbox';
+  required?: boolean;
+  hint?: string;
+  /** Dos columnas en pantallas medianas. */
+  compact?: boolean;
+  /** Tres columnas en pantallas grandes (con `compact`). */
+  wide?: boolean;
+  /** Opciones cortas en una sola línea (p. ej. Sí / No). */
+  inline?: boolean;
+  showWhen?: string;
+}
+
+const {
+  prefix,
+  name,
+  legend,
+  options,
+  type = 'radio',
+  required = false,
+  hint,
+  compact = false,
+  wide = false,
+  inline = false,
+  showWhen,
+} = Astro.props;
+
+const id = `${prefix}-${name}`;
+const hintId = hint ? `${id}-hint` : undefined;
+const describedBy = [hintId, `${id}-error`].filter(Boolean).join(' ');
+const classes = ['choices', compact && 'compact', wide && 'wide', inline && 'inline']
+  .filter(Boolean)
+  .join(' ');
+---
+
+<fieldset
+  class="choice-group"
+  data-field={name}
+  data-show-when={showWhen}
+  hidden={showWhen ? true : undefined}
+>
+  <legend>
+    {legend}
+    {!required && <span class="optional"> (opcional)</span>}
+  </legend>
+  {hint && <p class="field-hint" id={hintId}>{hint}</p>}
+  <div class={classes}>
+    {
+      options.map((o) => (
+        <label class="choice" for={`${id}-${o.value}`}>
+          <input
+            id={`${id}-${o.value}`}
+            type={type}
+            name={name}
+            value={o.value}
+            aria-describedby={describedBy}
+          />
+          <span>{o.label}</span>
+        </label>
+      ))
+    }
+  </div>
+  <p class="field-error" id={`${id}-error`} data-error role="alert" hidden></p>
+</fieldset>

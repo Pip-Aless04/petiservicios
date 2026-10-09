@@ -1,0 +1,126 @@
+---
+/**
+ * Campo de formulario accesible: label real, ayuda opcional y mensaje de error enlazado.
+ * El motor multi-paso (lib/multistep.ts) rellena `[data-error]` y marca `aria-invalid`.
+ */
+import type { Option } from '../../lib/constants';
+import { QUOTE_FILE } from '../../lib/constants';
+
+interface Props {
+  /** Prefijo de ids únicos por formulario, p. ej. "owner". */
+  prefix: string;
+  name: string;
+  label: string;
+  kind?: 'input' | 'select' | 'textarea' | 'file';
+  type?: 'text' | 'tel' | 'email' | 'url' | 'date' | 'number';
+  required?: boolean;
+  hint?: string;
+  placeholder?: string;
+  autocomplete?: string;
+  inputmode?: 'text' | 'tel' | 'email' | 'numeric' | 'decimal' | 'url';
+  options?: Option[];
+  selectPlaceholder?: string;
+  defaultValue?: string;
+  maxlength?: number;
+  rows?: number;
+  max?: string;
+  /** Muestra el campo solo cuando se cumple, p. ej. "species=otra". */
+  showWhen?: string;
+}
+
+const {
+  prefix,
+  name,
+  label,
+  kind = 'input',
+  type = 'text',
+  required = false,
+  hint,
+  placeholder,
+  autocomplete,
+  inputmode,
+  options = [],
+  selectPlaceholder = 'Elegí una opción',
+  defaultValue,
+  maxlength,
+  rows = 4,
+  max,
+  showWhen,
+} = Astro.props;
+
+const id = `${prefix}-${name}`;
+const hintId = hint || kind === 'file' ? `${id}-hint` : undefined;
+const describedBy = [hintId, `${id}-error`].filter(Boolean).join(' ');
+const accept = QUOTE_FILE.extensions.map((e) => `.${e}`).join(',');
+const fileHint = `Formatos: PDF, JPG, PNG o WEBP. Máximo ${QUOTE_FILE.maxLabel}.`;
+---
+
+<div class="field" data-field={name} data-show-when={showWhen} hidden={showWhen ? true : undefined}>
+  <label for={id}>
+    {label}
+    {!required && <span class="optional"> (opcional)</span>}
+  </label>
+
+  {
+    kind === 'select' ? (
+      <select
+        id={id}
+        name={name}
+        autocomplete={autocomplete}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy}
+      >
+        {!defaultValue && <option value="">{selectPlaceholder}</option>}
+        {options.map((o) => (
+          <option value={o.value} selected={o.value === defaultValue}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    ) : kind === 'textarea' ? (
+      <textarea
+        id={id}
+        name={name}
+        rows={rows}
+        maxlength={maxlength}
+        placeholder={placeholder}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy}
+      />
+    ) : kind === 'file' ? (
+      <input
+        id={id}
+        name={name}
+        type="file"
+        accept={accept}
+        aria-describedby={describedBy}
+      />
+    ) : (
+      <input
+        id={id}
+        name={name}
+        type={type}
+        inputmode={inputmode}
+        autocomplete={autocomplete}
+        placeholder={placeholder}
+        maxlength={maxlength}
+        max={max}
+        aria-required={required ? 'true' : undefined}
+        aria-describedby={describedBy}
+      />
+    )
+  }
+
+  {
+    kind === 'file' && (
+      <div class="file-status" aria-live="polite">
+        <span data-file-name />
+        <button type="button" class="btn btn-ghost" data-file-clear hidden>
+          Quitar archivo
+        </button>
+      </div>
+    )
+  }
+  {(hint || kind === 'file') && <p class="field-hint" id={hintId}>{hint ?? fileHint}</p>}
+  <p class="field-error" id={`${id}-error`} data-error role="alert" hidden></p>
+</div>
